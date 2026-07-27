@@ -5,28 +5,33 @@ import { BackupService } from './backup.js';
 
 const App = {
     async init() {
-        // Request persistent storage for PWA
-        if (navigator.storage && navigator.storage.persist) {
-            const isPersisted = await navigator.storage.persisted();
-            if (!isPersisted) {
-                await navigator.storage.persist();
+        try {
+            // Request persistent storage for PWA
+            if (navigator.storage && navigator.storage.persist) {
+                const isPersisted = await navigator.storage.persisted();
+                if (!isPersisted) {
+                    await navigator.storage.persist();
+                }
             }
-        }
 
-        // Initialize Database & State
-        await StateManager.init();
-        
-        // Initialize UI Modules
-        UIManager.init();
-        CustomerView.init();
-        TransactionView.init();
-        BackupService.init();
-        
-        // Global Event Listener for State Changes (DRY UI Update)
-        document.addEventListener('stateChanged', () => this.update());
-        
-        // Initial Render
-        this.update();
+            // Initialize Database & State
+            await StateManager.init();
+            
+            // Initialize UI Modules
+            UIManager.init();
+            CustomerView.init();
+            TransactionView.init();
+            BackupService.init();
+            
+            // Global Event Listener for State Changes (DRY UI Update)
+            document.addEventListener('stateChanged', () => this.update());
+            
+            // Initial Render
+            this.update();
+        } catch (error) {
+            console.error("Initialization failed:", error);
+            alert("Failed to initialize the database. Please ensure your browser supports IndexedDB and isn't in private browsing mode.");
+        }
     },
     
     update() {
@@ -36,4 +41,6 @@ const App = {
     }
 };
 
-document.addEventListener('DOMContentLoaded', App.init.bind(App));
+// ES Modules are deferred by default, so the DOM is already parsed.
+// We can safely initialize the app immediately.
+App.init();
