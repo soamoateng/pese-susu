@@ -115,6 +115,11 @@ export const ChartManager = {
 
     init() {
         if (this.initialized) return;
+        if (typeof Chart === 'undefined') {
+            console.error("Chart.js library not loaded.");
+            return;
+        }
+
         const ctx = document.getElementById('transactionsChart').getContext('2d');
         this.chart = new Chart(ctx, {
             type: 'doughnut',
@@ -142,7 +147,7 @@ export const ChartManager = {
     handleVisibility() {
         if (!this.initialized) {
             this.init();
-        } else {
+        } else if (this.chart) {
             setTimeout(() => this.chart.resize(), 100);
         }
     }
