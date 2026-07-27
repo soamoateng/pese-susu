@@ -86,6 +86,7 @@ main { padding: var(--space-md); }
     font-size: 1rem;
 }
 .btn:active { transform: scale(0.98); }
+.btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
 .card {
     background: var(--color-surface);
@@ -210,6 +211,31 @@ form button { margin-top: var(--space-sm); }
 
 .search-filter-bar { display: flex; gap: var(--space-sm); margin-bottom: var(--space-lg); }
 .search-filter-bar .form-control { flex: 1; }
+.search-filter-bar .combobox { flex: 1; position: relative; }
+
+/* NEW: Combobox Styles */
+.combobox-dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 0 0 var(--radius-md) var(--radius-md);
+    box-shadow: var(--shadow-md);
+    z-index: 100;
+    max-height: 200px;
+    overflow-y: auto;
+}
+.combobox-dropdown.active { display: block; }
+.combobox-item {
+    padding: 10px 12px;
+    cursor: pointer;
+    font-size: 0.95rem;
+}
+.combobox-item:hover { background-color: var(--color-primary-bg); }
+.combobox-item.selected { background-color: var(--color-primary); color: var(--color-surface); }
 
 .empty-state { text-align: center; color: var(--color-text-light); padding: 40px var(--space-lg); font-style: italic; }
 
