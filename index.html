@@ -5,154 +5,153 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pese Susu</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="./css/style.css">
 </head>
 <body>
 
-    <header>
-        <h1><i class="fa-solid fa-money-bill-transfer"></i> Pese Susu</h1>
-    </header>
+    <div class="app-header-wrapper">
+        <header>
+            <h1><i class="fa-solid fa-money-bill-transfer"></i> Pese Susu</h1>
+        </header>
+
+        <!-- Navigation (Bottom on mobile, Top on desktop) -->
+        <nav class="app-nav">
+            <button class="nav-btn active" data-target="customers-screen" type="button">
+                <i class="fa-solid fa-users"></i>
+                <span>Customers</span>
+            </button>
+            <button class="nav-btn" data-target="transactions-screen" type="button">
+                <i class="fa-solid fa-exchange-alt"></i>
+                <span>Transactions</span>
+            </button>
+            <button class="nav-btn" data-target="analytics-screen" type="button">
+                <i class="fa-solid fa-chart-pie"></i>
+                <span>Analytics</span>
+            </button>
+        </nav>
+    </div>
 
     <main id="app-container">
-
         <!-- Customers Screen -->
         <section id="customers-screen" class="screen active">
             <div class="screen-header">
                 <h2>Customers</h2>
-                <button id="add-customer-btn" class="btn-primary">
+                <button id="add-customer-btn" class="btn btn-primary" type="button">
                     <i class="fa-solid fa-plus"></i> Create New Customer
                 </button>
             </div>
-            <!-- NEW: Customer Search Bar -->
             <div class="search-filter-bar">
-                <input type="text" id="customer-search" placeholder="Search by name or account number...">
+                <input type="text" id="customer-search" class="form-control" placeholder="Search by name or account number..." aria-label="Search customers">
             </div>
-            <div id="customer-list" class="customer-list">
-                <!-- Customer cards injected here -->
-            </div>
+            <div id="customer-list" class="customer-list"></div>
         </section>
 
         <!-- Transactions Screen -->
         <section id="transactions-screen" class="screen">
             <div class="screen-header">
                 <h2>Transactions</h2>
-                <button id="add-transaction-btn" class="btn-primary">
+                <button id="add-transaction-btn" class="btn btn-primary" type="button">
                     <i class="fa-solid fa-plus"></i> Add New Transaction
                 </button>
             </div>
-            <!-- NEW: Transaction Filters -->
             <div class="search-filter-bar">
-                <select id="transaction-filter-type">
+                <select id="transaction-filter-type" class="form-control" aria-label="Filter by transaction type">
                     <option value="all">All Types</option>
                     <option value="deposit">Deposits</option>
                     <option value="withdrawal">Withdrawals</option>
                 </select>
-                <select id="transaction-filter-customer">
-                    <option value="all">All Customers</option>
+                <select id="transaction-filter-customer" class="form-control" aria-label="Filter by customer">
+                    <option value="">All Customers</option>
                 </select>
             </div>
-            <div id="transaction-list" class="transaction-list">
-                <!-- Transaction lists injected here -->
-            </div>
+            <div id="transaction-list" class="transaction-list"></div>
         </section>
 
         <!-- Analytics Screen -->
         <section id="analytics-screen" class="screen">
             <div class="screen-header">
                 <h2>Analytics</h2>
-                <!-- NEW: Export/Import Buttons -->
                 <div class="analytics-actions">
-                    <button id="export-data-btn" class="btn-secondary">
+                    <button id="export-data-btn" class="btn btn-secondary" type="button">
                         <i class="fa-solid fa-file-export"></i> Export
                     </button>
-                    <button id="import-data-btn" class="btn-secondary">
+                    <button id="import-data-btn" class="btn btn-secondary" type="button">
                         <i class="fa-solid fa-file-import"></i> Import
                     </button>
                 </div>
             </div>
-            <div class="chart-container">
+            <div class="chart-container card">
                 <h3>Transactions Overview</h3>
                 <canvas id="transactionsChart"></canvas>
             </div>
         </section>
-
     </main>
 
-    <!-- Bottom Navigation -->
-    <nav class="bottom-nav">
-        <button class="nav-btn active" data-target="customers-screen">
-            <i class="fa-solid fa-users"></i>
-            <span>Customers</span>
-        </button>
-        <button class="nav-btn" data-target="transactions-screen">
-            <i class="fa-solid fa-exchange-alt"></i>
-            <span>Transactions</span>
-        </button>
-        <button class="nav-btn" data-target="analytics-screen">
-            <i class="fa-solid fa-chart-pie"></i>
-            <span>Analytics</span>
-        </button>
-    </nav>
-
     <!-- Customer Modal -->
-    <div id="customer-modal" class="modal">
+    <div id="customer-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="customer-modal-title">
         <div class="modal-content">
-            <button class="close-btn" data-modal="customer-modal" aria-label="Close modal">&times;</button>
+            <button class="close-btn" data-modal="customer-modal" aria-label="Close modal" type="button">&times;</button>
             <h3 id="customer-modal-title">Create New Customer</h3>
             <form id="customer-form">
                 <input type="hidden" id="customer-index">
-                <label>Customer Name</label>
-                <input type="text" id="customer-name" required>
-                <label>Phone Number</label>
-                <input type="tel" id="customer-phone" required>
-                <label>Location</label>
-                <input type="text" id="customer-location" required>
-                <label>Initial Account Balance (₵)</label>
-                <input type="number" id="customer-balance" step="0.01" min="0" required>
-                <button type="submit" class="btn-primary">Save Customer</button>
+                <label for="customer-name">Customer Name</label>
+                <input type="text" id="customer-name" class="form-control" required>
+                
+                <label for="customer-phone">Phone Number</label>
+                <input type="tel" id="customer-phone" class="form-control" required>
+                
+                <label for="customer-location">Location</label>
+                <input type="text" id="customer-location" class="form-control" required>
+                
+                <label for="customer-balance">Initial Account Balance (₵)</label>
+                <input type="number" id="customer-balance" class="form-control" step="0.01" min="0" required>
+                
+                <button type="submit" class="btn btn-primary">Save Customer</button>
             </form>
         </div>
     </div>
 
     <!-- Transaction Modal -->
-    <div id="transaction-modal" class="modal">
+    <div id="transaction-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="transaction-modal-title">
         <div class="modal-content">
-            <button class="close-btn" data-modal="transaction-modal" aria-label="Close modal">&times;</button>
-            <h3>Add New Transaction</h3>
+            <button class="close-btn" data-modal="transaction-modal" aria-label="Close modal" type="button">&times;</button>
+            <h3 id="transaction-modal-title">Add New Transaction</h3>
             <form id="transaction-form">
-                <label>Select Customer</label>
-                <select id="transaction-customer" required>
+                <label for="transaction-customer">Select Customer</label>
+                <select id="transaction-customer" class="form-control" required>
                     <option value="">-- Select Customer --</option>
                 </select>
-                <label>Transaction Type</label>
-                <select id="transaction-type" required>
+                
+                <label for="transaction-type">Transaction Type</label>
+                <select id="transaction-type" class="form-control" required>
                     <option value="deposit">Deposit</option>
                     <option value="withdrawal">Withdrawal</option>
                 </select>
-                <label>Amount (₵)</label>
-                <input type="number" id="transaction-amount" step="0.01" min="0.01" required>
-                <button type="submit" class="btn-primary">Save Transaction</button>
+                
+                <label for="transaction-amount">Amount (₵)</label>
+                <input type="number" id="transaction-amount" class="form-control" step="0.01" min="0.01" required>
+                
+                <button type="submit" class="btn btn-primary">Save Transaction</button>
             </form>
         </div>
     </div>
 
     <!-- Custom Alert/Confirm Modal -->
-    <div id="alert-modal" class="modal">
+    <div id="alert-modal" class="modal" role="alertdialog" aria-modal="true" aria-labelledby="alert-modal-title" aria-describedby="alert-modal-message">
         <div class="modal-content">
-            <button class="close-btn" data-modal="alert-modal" aria-label="Close modal">&times;</button>
+            <button class="close-btn" data-modal="alert-modal" aria-label="Close modal" type="button">&times;</button>
             <h3 id="alert-modal-title">Notice</h3>
             <p id="alert-modal-message"></p>
             <div class="card-actions">
-                <button id="alert-cancel-btn" class="btn-edit" style="display: none;">Cancel</button>
-                <button id="alert-ok-btn" class="btn-primary" style="justify-content: center;">OK</button>
+                <button id="alert-cancel-btn" class="btn btn-edit" type="button" hidden>Cancel</button>
+                <button id="alert-ok-btn" class="btn btn-primary" type="button">OK</button>
             </div>
         </div>
     </div>
 
-    <!-- NEW: Hidden file input for importing data -->
-    <input type="file" id="import-file-input" accept=".json" style="display: none;">
+    <input type="file" id="import-file-input" accept=".json" hidden>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="script.js"></script>
+    <script type="module" src="./js/app.js"></script>
 </body>
-    </html>
+</html>
