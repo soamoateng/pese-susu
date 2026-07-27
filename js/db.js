@@ -20,7 +20,10 @@ export const DatabaseService = {
             };
             
             request.onsuccess = (e) => { this.db = e.target.result; resolve(); };
-            request.onerror = (e) => reject('IndexedDB error:', e.target.error);
+            request.onerror = (e) => {
+                console.error("IndexedDB Error:", e.target.error);
+                reject(e.target.error);
+            };
         });
     },
     
@@ -57,6 +60,16 @@ export const DatabaseService = {
             const req = this._tx(storeName, 'readwrite').delete(key);
             req.onsuccess = () => resolve();
             req.onerror = () => reject(req.error);
+        });
+    },
+    
+    bulkDelete(storeName, keys) {
+        return new Promise((resolve, reject) => {
+            const tx = this.db.transaction(storeName, 'readwrite');
+            const store = tx.objectStore(storeName);
+            keys.forEach(key => store.delete(key));
+            tx.oncomplete = () => resolve();
+            tx.onerror = () => reject(tx.error);
         });
     },
     
