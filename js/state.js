@@ -6,6 +6,7 @@ export const StateManager = {
     accCounter: 0,
     
     async init() {
+        await DatabaseService.init(); 
         this.customers = await DatabaseService.getAll('customers');
         this.transactions = await DatabaseService.getAll('transactions');
         
@@ -41,7 +42,6 @@ export const StateManager = {
     },
 
     save() {
-        // Broadcast update to UI
         document.dispatchEvent(new CustomEvent('stateChanged'));
     },
     
@@ -65,8 +65,8 @@ export const StateManager = {
         this.transactions = this.transactions.filter(t => t.accountNumber !== accNum);
         
         await DatabaseService.delete('customers', accNum);
-        for (let t of txnsToRemove) {
-            await DatabaseService.delete('transactions', t.id);
+        if (txnsToRemove.length > 0) {
+            await DatabaseService.bulkDelete('transactions', txnsToRemove.map(t => t.id));
         }
         this.save();
     },
