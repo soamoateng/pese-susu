@@ -22,7 +22,8 @@ export const BackupService = {
                             
                             CustomerView.dom.search.value = '';
                             TransactionView.dom.filterType.value = 'all';
-                            TransactionView.dom.filterCustomer.value = '';
+                            TransactionView.dom.filterCustomerInput.value = '';
+                            TransactionView.activeCustomerFilter = '';
                             
                             UIManager.showAlert("Data imported successfully!");
                         });
