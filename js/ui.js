@@ -1,3 +1,6 @@
+import { StateManager } from './state.js';
+import { FinanceService } from './utils.js';
+
 export const UIManager = {
     dom: {},
     lastFocusedElement: null,
@@ -131,12 +134,9 @@ export const ChartManager = {
 
     update() {
         if (!this.chart) return;
-        // Dynamic import avoids circular dependencies
-        import('./state.js').then(({ StateManager }) => {
-            const totals = FinanceService.getTransactionTotals(StateManager.transactions);
-            this.chart.data.datasets[0].data = [totals.deposits, totals.withdrawals];
-            this.chart.update();
-        });
+        const totals = FinanceService.getTransactionTotals(StateManager.transactions);
+        this.chart.data.datasets[0].data = [totals.deposits, totals.withdrawals];
+        this.chart.update();
     },
 
     handleVisibility() {
@@ -147,10 +147,3 @@ export const ChartManager = {
         }
     }
 };
-
-// Expose ChartManager globally for UIManager navigation trigger
-window.ChartManager = ChartManager;
-
-// Need to import StateManager and FinanceService for ChartManager.update
-import { StateManager } from './state.js';
-import { FinanceService } from './utils.js';
