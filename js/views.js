@@ -57,33 +57,39 @@ export const CustomerView = {
 
     async handleSubmit(e) {
         e.preventDefault();
-        const name = document.getElementById('customer-name').value;
-        const phone = document.getElementById('customer-phone').value;
-        const location = document.getElementById('customer-location').value;
-        let balance = Utils.roundCurrency(parseFloat(document.getElementById('customer-balance').value) || 0);
-        
-        if (this.editIndex !== -1) {
-            await StateManager.updateCustomer(this.editIndex, { 
-                ...StateManager.customers[this.editIndex], 
-                name, phone, location 
-            });
-        } else {
-            const newCustomer = { name, phone, location, balance };
-            const savedCustomer = await StateManager.addCustomer(newCustomer);
+        const submitBtn = this.dom.form.querySelector('button[type="submit"]');
+        submitBtn.disabled = true; 
+
+        try {
+            const name = document.getElementById('customer-name').value;
+            const phone = document.getElementById('customer-phone').value;
+            const location = document.getElementById('customer-location').value;
+            let balance = Utils.roundCurrency(parseFloat(document.getElementById('customer-balance').value) || 0);
             
-            if (balance > 0) {
-                await StateManager.addTransaction({
-                    id: Utils.generateId('TXN'),
-                    accountNumber: savedCustomer.accountNumber,
-                    type: 'deposit',
-                    amount: balance,
-                    date: new Date().toISOString()
+            if (this.editIndex !== -1) {
+                await StateManager.updateCustomer(this.editIndex, { 
+                    ...StateManager.customers[this.editIndex], 
+                    name, phone, location 
                 });
+            } else {
+                const newCustomer = { name, phone, location, balance };
+                const savedCustomer = await StateManager.addCustomer(newCustomer);
+                
+                if (balance > 0) {
+                    await StateManager.addTransaction({
+                        id: Utils.generateId('TXN'),
+                        accountNumber: savedCustomer.accountNumber,
+                        type: 'deposit',
+                        amount: balance,
+                        date: new Date().toISOString()
+                    });
+                }
             }
+            UIManager.closeModal(this.dom.modal);
+            this.dom.form.reset();
+        } finally {
+            submitBtn.disabled = false; 
         }
-        
-        UIManager.closeModal(this.dom.modal);
-        this.dom.form.reset();
     },
 
     handleDelete(accNum) {
@@ -126,6 +132,7 @@ export const CustomerView = {
 
 export const TransactionView = {
     dom: {},
+    activeCustomerFilter: '', // Holds the actual ID of the selected customer in the combobox
 
     init() {
         this.cacheDom();
@@ -139,14 +146,19 @@ export const TransactionView = {
         this.dom.addBtn = document.getElementById('add-transaction-btn');
         this.dom.customerSelect = document.getElementById('transaction-customer');
         this.dom.filterType = document.getElementById('transaction-filter-type');
-        this.dom.filterCustomer = document.getElementById('transaction-filter-customer');
+        this.dom.filterCustomerInput = document.getElementById('transaction-filter-customer');
+        this.dom.filterCustomerDropdown = document.getElementById('transaction-filter-customer-dropdown');
     },
 
     bindEvents() {
         this.dom.addBtn.addEventListener('click', () => this.openModal());
         this.dom.form.addEventListener('submit', (e) => this.handleSubmit(e));
         this.dom.filterType.addEventListener('change', () => this.render());
-        this.dom.filterCustomer.addEventListener('change', () => this.render());
+        
+        // Combobox Listeners
+        this.dom.filterCustomerInput.addEventListener('input', (e) => this.handleFilterSearch(e.target.value));
+        this.dom.filterCustomerInput.addEventListener('focus', () => this.renderFilterDropdown());
+        this.dom.filterCustomerInput.addEventListener('blur', () => setTimeout(() => this.dom.filterCustomerDropdown.classList.remove('active'), 200));
         
         this.dom.list.addEventListener('click', (e) => {
             const btn = e.target.closest('button');
@@ -175,44 +187,78 @@ export const TransactionView = {
         return true;
     },
 
-    populateFilterDropdown() {
-        const currentValue = this.dom.filterCustomer.value;
-        const items = StateManager.customers.map(c => ({ value: c.accountNumber, label: c.name }));
-        UIManager.populateDropdown(this.dom.filterCustomer, items, "All Customers");
-        
-        if (currentValue && StateManager.customers.some(c => c.accountNumber === currentValue)) {
-            this.dom.filterCustomer.value = currentValue;
+    // NEW: Handles the searchable select logic
+    renderFilterDropdown(searchTerm = '') {
+        const filteredCustomers = StateManager.customers.filter(c => 
+            c.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+            c.accountNumber.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+
+        let html = `<div class="combobox-item" data-id="" data-name="All Customers">All Customers</div>`;
+        html += filteredCustomers.map(c => `
+            <div class="combobox-item ${this.activeCustomerFilter === c.accountNumber ? 'selected' : ''}" data-id="${Utils.escapeHtml(c.accountNumber)}" data-name="${Utils.escapeHtml(c.name)}">
+                ${Utils.escapeHtml(c.name)} (${Utils.escapeHtml(c.accountNumber)})
+            </div>
+        `).join('');
+
+        this.dom.filterCustomerDropdown.innerHTML = html;
+        this.dom.filterCustomerDropdown.classList.add('active');
+
+        // Attach click listeners to new items
+        this.dom.filterCustomerDropdown.querySelectorAll('.combobox-item').forEach(item => {
+            item.addEventListener('mousedown', (e) => {
+                e.preventDefault(); // Prevent input blur before click registers
+                this.activeCustomerFilter = item.dataset.id;
+                this.dom.filterCustomerInput.value = item.dataset.name;
+                this.dom.filterCustomerDropdown.classList.remove('active');
+                this.render();
+            });
+        });
+    },
+
+    handleFilterSearch(term) {
+        // If user manually clears the text, reset the filter
+        if (term === '') {
+            this.activeCustomerFilter = '';
         }
+        this.renderFilterDropdown(term);
     },
 
     async handleSubmit(e) {
         e.preventDefault();
-        const accNum = this.dom.customerSelect.value;
-        if (!accNum) return UIManager.showAlert("Please select a customer.");
-        
-        const customer = StateManager.customers.find(c => c.accountNumber === accNum);
-        if (!customer) return;
-        
-        const type = document.getElementById('transaction-type').value;
-        let amount = parseFloat(document.getElementById('transaction-amount').value);
-        
-        if (isNaN(amount) || amount <= 0) return UIManager.showAlert("Amount must be a valid number greater than zero.");
-        amount = Utils.roundCurrency(amount);
-        
-        const result = FinanceService.applyTransaction(customer, type, amount);
-        if (!result.success) return UIManager.showAlert(result.error);
-        
-        await StateManager.addTransaction({
-            id: Utils.generateId('TXN'),
-            accountNumber: customer.accountNumber,
-            type, amount,
-            date: new Date().toISOString()
-        });
-        
-        const custIndex = StateManager.customers.findIndex(c => c.accountNumber === accNum);
-        await StateManager.updateCustomer(custIndex, customer);
-        
-        UIManager.closeModal(this.dom.modal);
+        const submitBtn = this.dom.form.querySelector('button[type="submit"]');
+        submitBtn.disabled = true; 
+
+        try {
+            const accNum = this.dom.customerSelect.value;
+            if (!accNum) return UIManager.showAlert("Please select a customer.");
+            
+            const customer = StateManager.customers.find(c => c.accountNumber === accNum);
+            if (!customer) return;
+            
+            const type = document.getElementById('transaction-type').value;
+            let amount = parseFloat(document.getElementById('transaction-amount').value);
+            
+            if (isNaN(amount) || amount <= 0) return UIManager.showAlert("Amount must be a valid number greater than zero.");
+            amount = Utils.roundCurrency(amount);
+            
+            const result = FinanceService.applyTransaction(customer, type, amount);
+            if (!result.success) return UIManager.showAlert(result.error);
+            
+            await StateManager.addTransaction({
+                id: Utils.generateId('TXN'),
+                accountNumber: customer.accountNumber,
+                type, amount,
+                date: new Date().toISOString()
+            });
+            
+            const custIndex = StateManager.customers.findIndex(c => c.accountNumber === accNum);
+            await StateManager.updateCustomer(custIndex, customer);
+            
+            UIManager.closeModal(this.dom.modal);
+        } finally {
+            submitBtn.disabled = false; 
+        }
     },
 
     handleDelete(txnId) {
@@ -231,9 +277,8 @@ export const TransactionView = {
     },
 
     render() {
-        this.populateFilterDropdown();
         const typeFilter = this.dom.filterType.value;
-        const custFilter = this.dom.filterCustomer.value;
+        const custFilter = this.activeCustomerFilter;
         
         const filteredTxns = StateManager.transactions.filter(t => {
             const typeMatch = typeFilter === 'all' || t.type === typeFilter;
