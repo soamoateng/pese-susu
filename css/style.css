@@ -1,0 +1,331 @@
+/* ==========================================
+// 1. Design Tokens (DRY & KISS)
+// ========================================== */
+:root {
+    --color-primary: #1a73e8;
+    --color-primary-hover: #1557b0;
+    --color-primary-bg: #e8f0fe;
+    --color-bg: #f0f2f5;
+    --color-surface: #ffffff;
+    --color-text: #333;
+    --color-text-muted: #555;
+    --color-text-light: #777;
+    --color-border: #ccc;
+    
+    --color-success: #28a745;
+    --color-danger: #dc3545;
+    --color-danger-bg: #fee2e2;
+    --color-danger-bg-hover: #fecaca;
+    --color-neutral-bg: #e9ecef;
+    --color-neutral-bg-hover: #ced4da;
+
+    --space-xs: 5px;
+    --space-sm: 10px;
+    --space-md: 15px;
+    --space-lg: 20px;
+    --space-xl: 25px;
+
+    --radius-sm: 6px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 20px;
+
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+    --shadow-md: 0 2px 8px rgba(0,0,0,0.08);
+    --shadow-lg: 0 2px 4px rgba(0,0,0,0.2);
+    --shadow-nav: 0 -2px 10px rgba(0,0,0,0.1);
+}
+
+/* ==========================================
+// 2. Base & Layout (SRP)
+// ========================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    padding-bottom: calc(90px + env(safe-area-inset-bottom)); 
+}
+
+.app-header-wrapper {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background-color: var(--color-primary);
+    box-shadow: var(--shadow-md);
+}
+
+header {
+    color: var(--color-surface);
+    padding: var(--space-lg);
+    text-align: center;
+}
+
+header h1 { font-size: 1.5rem; }
+
+main { padding: var(--space-md); }
+
+/* ==========================================
+// 3. Reusable Components (DRY & OCP)
+// ========================================== */
+.btn {
+    border: none;
+    padding: 10px 15px;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    font-size: 1rem;
+}
+.btn:active { transform: scale(0.98); }
+
+.card {
+    background: var(--color-surface);
+    border-radius: var(--radius-lg);
+    padding: var(--space-md);
+    margin-bottom: var(--space-md);
+    box-shadow: var(--shadow-md);
+}
+
+.form-control {
+    padding: 12px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    width: 100%;
+}
+
+.btn-primary {
+    background-color: var(--color-primary);
+    color: var(--color-surface);
+    box-shadow: var(--shadow-lg);
+}
+.btn-primary:hover { background-color: var(--color-primary-hover); }
+
+.btn-secondary, .btn-edit {
+    background-color: var(--color-neutral-bg);
+    color: var(--color-text);
+}
+.btn-secondary:hover, .btn-edit:hover { background-color: var(--color-neutral-bg-hover); }
+
+.btn-delete {
+    background-color: var(--color-danger-bg);
+    color: var(--color-danger);
+    padding: 8px 12px;
+}
+.btn-delete:hover { background-color: var(--color-danger-bg-hover); }
+
+/* ==========================================
+// 4. Screens & Navigation
+// ========================================== */
+.screen { display: none; animation: fadeIn 0.3s ease; }
+.screen.active { display: block; }
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.screen-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-lg);
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+}
+.screen-header h2 { font-size: 1.3rem; color: var(--color-primary); }
+
+.app-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: var(--color-surface);
+    display: flex;
+    justify-content: space-around;
+    padding: var(--space-sm) 0;
+    box-shadow: var(--shadow-nav);
+    z-index: 1000;
+}
+
+.nav-btn {
+    background: none;
+    border: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: var(--color-text-light);
+    font-size: 0.8rem;
+    cursor: pointer;
+    padding: var(--space-xs) var(--space-sm);
+    border-radius: var(--radius-md);
+    transition: all 0.2s;
+}
+.nav-btn i { font-size: 1.2rem; margin-bottom: 3px; }
+.nav-btn.active { color: var(--color-surface); background-color: var(--color-primary); }
+
+/* ==========================================
+// 5. Specific Components
+// ========================================== */
+.customer-card { border-left: 5px solid var(--color-primary); }
+.customer-card h3 { margin-bottom: var(--space-sm); color: #222; font-size: 1.1rem; }
+.customer-info p { font-size: 0.9rem; color: var(--color-text-muted); margin-bottom: var(--space-xs); word-break: break-word; }
+.customer-info .balance { font-weight: bold; color: var(--color-primary); font-size: 1.1rem; margin-top: var(--space-xs); }
+
+.btn-edit { width: 100%; margin-top: var(--space-sm); }
+
+.transaction-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: var(--shadow-sm);
+    gap: 15px;
+}
+.transaction-info { flex: 1; min-width: 0; }
+.transaction-info h4 { font-size: 1rem; margin-bottom: 4px; }
+.transaction-info p { font-size: 0.8rem; color: #666; word-break: break-word; }
+.transaction-amount { font-weight: bold; font-size: 1.1rem; }
+
+.transaction-delete-btn { width: auto; padding: 8px 12px; margin-top: 0; margin-left: 10px; flex-shrink: 0; }
+
+.deposit { color: var(--color-success); }
+.withdrawal { color: var(--color-danger); }
+
+form { display: flex; flex-direction: column; gap: 12px; }
+form label { font-size: 0.9rem; font-weight: 600; color: var(--color-text-muted); }
+form button { margin-top: var(--space-sm); }
+
+.card-actions { display: flex; gap: var(--space-sm); margin-top: var(--space-md); }
+.card-actions button { flex: 1; }
+.analytics-actions { display: flex; gap: var(--space-sm); }
+
+.search-filter-bar { display: flex; gap: var(--space-sm); margin-bottom: var(--space-lg); }
+.search-filter-bar .form-control { flex: 1; }
+
+.empty-state { text-align: center; color: var(--color-text-light); padding: 40px var(--space-lg); font-style: italic; }
+
+/* ==========================================
+// 6. Modals
+// ========================================== */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 2000;
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(0,0,0,0.6);
+    justify-content: center;
+    align-items: flex-end;
+}
+.modal.active { display: flex; }
+
+.modal-content {
+    background-color: var(--color-surface);
+    padding: var(--space-xl);
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    width: 100%;
+    max-width: 500px;
+    animation: slideUp 0.3s ease;
+    position: relative;
+    max-height: 90vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+@keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+}
+
+.close-btn {
+    position: absolute;
+    top: var(--space-md);
+    right: var(--space-lg);
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--color-text-light);
+}
+
+.modal-content h3 { margin-bottom: var(--space-lg); color: var(--color-primary); text-align: center; }
+
+form input:disabled, form select:disabled {
+    background-color: var(--color-bg);
+    color: var(--color-text-light);
+    cursor: not-allowed;
+    opacity: 0.7;
+    border-color: var(--color-border);
+}
+
+#alert-modal .modal-content { text-align: center; }
+#alert-modal-message { font-size: 1rem; color: var(--color-text-muted); margin-bottom: var(--space-lg); line-height: 1.5; }
+#alert-modal .card-actions { margin-top: 0; }
+#alert-modal .btn-primary { justify-content: center; }
+
+.chart-container h3 { margin-bottom: var(--space-md); text-align: center; }
+
+/* ==========================================
+// 7. Responsive Media Queries (KISS)
+// ========================================== */
+@media (min-width: 768px) {
+    body { padding-bottom: 0; }
+
+    .app-header-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 var(--space-xl);
+    }
+
+    header { padding: var(--space-md) 0; text-align: left; }
+    header h1 { font-size: 1.8rem; }
+
+    .app-nav {
+        position: relative;
+        bottom: auto;
+        width: auto;
+        box-shadow: none;
+        background: transparent;
+        gap: var(--space-sm);
+        padding: var(--space-sm) 0;
+    }
+
+    .nav-btn {
+        flex-direction: row;
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 1rem;
+        padding: 10px 20px;
+    }
+    .nav-btn i { font-size: 1.2rem; margin-bottom: 0; margin-right: 8px; }
+    .nav-btn.active { color: var(--color-surface); background-color: rgba(255, 255, 255, 0.2); }
+
+    main { max-width: 1000px; margin: 0 auto; padding: var(--space-xl); }
+
+    .screen-header h2 { font-size: 1.8rem; }
+    .btn { padding: 12px 20px; font-size: 1.1rem; }
+    .card { padding: var(--space-xl); }
+    .customer-card h3 { font-size: 1.4rem; }
+    .customer-info p { font-size: 1.1rem; }
+    .customer-info .balance { font-size: 1.4rem; }
+    .transaction-info h4 { font-size: 1.2rem; }
+    .transaction-info p { font-size: 0.9rem; }
+    .transaction-amount { font-size: 1.3rem; }
+
+    form input, form select { padding: 15px; font-size: 1.1rem; }
+    form label { font-size: 1rem; }
+
+    .modal { align-items: center; }
+    .modal-content { border-radius: var(--radius-xl); max-width: 600px; padding: 30px; }
+}
+
+:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
